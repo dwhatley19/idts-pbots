@@ -46,23 +46,46 @@ int rank(string card)
 Input: 5-card hand
 Output: "position" of the hand in all possible 5-card
 	hands
+	currently very crude -- outputs number between 0 and 4
+	NEED TO IMPROVE
 */
 int hand_to_number(vector<string> hand)
 {
-	sort(hand.begin(), hand.end());
-	int rank = 0;
+	// count frequencies of each suit and number
+	vector<int> freq_suits(4, 0), freq_nums(13, 0);
 
-	// check for flush
+	for(int i = 0; i < hand.size(); ++i) {
+		freq_suits[suit(hand[i])]++;
+		freq_nums[number(hand[i])]++;
+	}
 
-	// check for straight
+	int flush = -1, straight = -1, four = -1, three = -1;
+	int two = -1, pairs = 0;
 
-	// check for 4-of-a-kind
+	for(int i = 0; i < 4; ++i) {
+		if(freq_suits[i] == 5) flush = i;
+	}
 
-	// check for 3-of-a-kind
+	for(int i = 0; i < 13; ++i) {
+		if(freq_nums[i] == 4) four = i;
+		else if(freq_nums[i] == 3) three = i;
+		else if(freq_nums[i] == 2) {
+			two = i;
+			pairs++;
+		}
 
-	// check for 2-of-a-kind
+		if(i <= 8 && freq_nums[i] == 1 && freq_nums[i+1] == 1 && freq_nums[i+2] == 1 && freq_nums[i+3] == 1 && freq_nums[i+4] == 1)
+			straight = i+4;
+	}
 
-
+	if(straight >= 0 || flush >= 0 || four >= 0 || three >= 8) return 0;
+	if(three >= 0 && two >= 0) return 0;
+	if(three >= 0) return 1;
+	if(pairs == 2 && two >= 11) return 1;
+	if(pairs == 2) return 2;
+	if(pairs == 1 && two >= 11) return 2;
+	if(pairs == 1) return 3;
+	return 4;
 }
 
 /*
@@ -84,14 +107,26 @@ int hand_strength2(vector<string> hand)
 	
 }
 
+int hand_strength4(vector<string> hand)
+{
+
+}
+
 int hand_strength5(vector<string> hand, bool add)
 {
-	
+	string cards = "23456789TJQK", suits = "cdhs";
 }
 
 int hand_strength6(vector<string> hand, bool add)
 {
-	
+	string cards = "23456789TJQK", suits = "cdhs";
+	int min = 5;
+
+	for(int i = 0; i < hand.size(); ++i) {
+		vector<string> hand2 = hand;
+		hand2.erase(hand2.begin() + i);
+		if(hand_strength5(hand2, 0));
+	}
 }
 
 int hand_strength7(vector<string> hand)
