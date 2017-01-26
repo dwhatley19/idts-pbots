@@ -141,8 +141,26 @@ Only applicable for 2-card hands.
 string hole: 2 hole cards
 string table: current table cards
 */
-int usefulness(string hole, string table)
+int usefulness(vector<string> hole, vector<string> table)
 {
-	
+	vector<string> table1 = table, table2 = table, table3 = table;
+	table1.push_back(hole[0]);
+	table2.push_back(hole[1]);
+	table3.push_back(hole[0]);
+	table3.push_back(hole[1]);
+
+	if(table.size() == 3) {
+		int strength1 = hand_strength4(table1);
+		int strength2 = hand_strength4(table2);
+		int strength3 = hand_strength5(table3, 0);
+	} else if(table.size() == 4) {
+		int strength1 = hand_strength5(table1, 0);
+		int strength2 = hand_strength5(table2, 0);
+		int strength3 = hand_strength6(table3, 0);
+	} else if(table.size() == 5) {
+		int strength1 = hand_strength6(table1, 0);
+		int strength2 = hand_strength6(table2, 0);
+		int strength3 = hand_strength7(table3);
+	}
 }
 
