@@ -34,10 +34,16 @@ void Player::run(tcp::iostream &stream)
         string packet_type;
         sin >> packet_type;
 
+        vector<string> holeCards;
+        string myName;
+
         if (packet_type == "NEWGAME") {
             sin >> myName >> oppName >> stackSize >> bb >> numHands >> timeBank;
         } else if(packet_type == "NEWHAND") {
             sin >> handId >> std::boolalpha >> button >> holeCard1 >> holeCard2 >> myBank >> otherBank >> timeBank;
+            holeCards.clear();
+            holeCards.push_back(holeCard1);
+            holeCards.push_back(holeCard2);
         } else if(packet_type == "GETACTION") {
             // Respond with CHECK when playing, you'll want to change this.
             sin >> potSize;
@@ -49,6 +55,18 @@ void Player::run(tcp::iostream &stream)
             stream << t.get_action(holeCards, boardCards, legalActions);
         } else if(packet_type == "HANDOVER") {
             sin >> myStack >> oppStack;
+            vector<string> boardCards;
+            vector<string> lastActions;
+            readVec(sin, boardCards);
+            readVec(sin, lastActions);
+            sin >> timeBank;
+
+            for(int i = 0; i < lastActions.size(); ++i) {
+                if(lastActions[i].size() > 3 && lastActions[i].substring(0, 3) == "WIN") {
+                    stringstream ss;
+                    
+                }
+            }
 
             int payoff = //however much we won
             t.train(payoff);
