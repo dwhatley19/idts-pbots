@@ -1,8 +1,4 @@
-#include <string>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
+#include "player.hpp"
 
 string cards_to_hand(string a, string b)
 {
@@ -213,7 +209,7 @@ string table: current table cards
 0 is most useful
 2 is least useful
 */
-int usefulness(string hole, string table)
+int Bot::usefulness(string hole, string table)
 {
     vector<string> table1 = table, table2 = table, table3 = table;
     table1.push_back(hole[0]);
@@ -246,4 +242,12 @@ int usefulness(string hole, string table)
         if((strength1 <= 2 || strength2 <= 2) || strength3 <= 2) return 1;
         return 2;
     }
+}
+
+int Bot::hand_strength(vector<string> hand)
+{
+    if(hand.size() == 2) return hand_strength2(hand);
+    if(hand.size() == 5) return max(hand_strength5(hand, 0), hand_strength5(hand, 1));
+    if(hand.size() == 6) return max(hand_strength6(hand, 0), hand_strength6(hand, 1));
+    if(hand.size() == 7) return max(hand_strength7(hand), hand_strength7(hand));
 }
