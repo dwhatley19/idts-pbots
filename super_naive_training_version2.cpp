@@ -67,49 +67,123 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
         if(legal_actions[i][0] == 'D') discard = 1;
         if(legal_actions[i][0] == 'C') check = 1;
     }
-        
-    if(action >= cur.checkfold * 100 && action < cur.bethigh * 100) { // we are betting high
-        cantfold = true; // we just bet high; folding is no longer an option
-        if(table.empty()) discard_flop = discard_turn = false; // we started betting high on preflop, so we are pretending we have a high pair; discarding would give us away
-        else discard_flop = false; // we cannot discard in flop, we can potentially discard in turn
-    }
     
-    if(action < cur.checkfold * 100) {
-        if(check) {
-            // 0 = CHECK
-            b.actions.push_back(fttoi(0, hs, u, b.current_round));
-            return "CHECK";
-        } else if(!cantfold) return "FOLD";
-    }
-    if(action < cur.bethigh * 100) {
-        cantfold = true; // we just bet high; folding is no longer an option
-        int lower = int(double(i2) * 0.3); // can tweak 0.5
-        int actual = rand() % (100-lower+1) + lower;
-
-        stringstream ss2;
-        ss2 << max(i1, actual);
-
-        // 2 = BETHIGH
-        b.actions.push_back(fttoi(2, hs, u, b.current_round));
-        return pre + ss2.str();
-    }
-    else {
-        if(i1 > LOW_THRESHOLD && !cantfold) { // <------- maybe we should change that, as a safety measure in case the opponent goes all-in
-            // 0 = FOLD
-            b.actions.push_back(fttoi(0, hs, u, b.current_round));
-            return "FOLD";
+    // assuming that when we are able to discard our only options are DISCARD/CHECK
+    if(discard) {
+        if(table.size() == 3) {
+            if(!discard_flop) return "CHECK";
+            else {
+                if(u == 0) return "CHECK";
+                else if(u == 1 && rand() % 2 == 0) { // discarding with probability 50% (very naive)
+                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                    one.push_back(hole[0]);
+                    two.push_back(hole[1]);
+                    int sone = hand_strength4(one);
+                    int stwo = hand_strength4(two);
+                    if(sone == stwo) {
+                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
+                        else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
+                        else return "CHECK"; // dont discard; might need to change that
+                    } 
+                    else if(sone > stwo) return /* DISCARD card 1 */;
+                    else return /* DISCARD card 0 */;
+                } else if(u == 2) {
+                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                    one.push_back(hole[0]);
+                    two.push_back(hole[1]);
+                    int sone = hand_strength4(one);
+                    int stwo = hand_strength4(two);
+                    if(sone == stwo) {
+                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
+                        else return /* DISCARD card 0 */;
+                        // always discard at usefulness 2
+                        // else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
+                        // else return "CHECK"; // dont discard; might need to change that
+                    } 
+                    else if(sone > stwo) return /* DISCARD card 1 */;
+                    else return /* DISCARD card 0 */;
+                }
+            }
         } else {
-            int upper = int(double(i1) * 1.15); // can tweak 1.15
-            int actual = rand() % (upper-i1+1) + i1;
-
-            stringstream ss2;
-            ss2 << min(i2, min(actual, LOW_THRESHOLD));
-
-            // 1 = BETLOW
-            b.actions.push_back(fttoi(1, hs, u, b.current_round));
-            return pre + ss2.str();
+            if(!discard_turn) return "CHECK";
+            else {
+                if(u == 0) return "CHECK";
+                else if(u == 1 && rand() % 2 == 0) { // discarding with probability 50% (very naive)
+                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                    one.push_back(hole[0]);
+                    two.push_back(hole[1]);
+                    int sone = hand_strength5(one, 0);
+                    int stwo = hand_strength5(two, 0);
+                    if(sone == stwo) {
+                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
+                        else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
+                        else return "CHECK"; // dont discard; might need to change that
+                    } 
+                    else if(sone > stwo) return /* DISCARD card 1 */;
+                    else return /* DISCARD card 0 */;
+                } else if(u == 2) {
+                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                    one.push_back(hole[0]);
+                    two.push_back(hole[1]);
+                    int sone = hand_strength5(one, 0);
+                    int stwo = hand_strength5(two, 0);
+                    if(sone == stwo) {
+                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
+                        else return /* DISCARD card 0 */;
+                        // always discard at usefulness 2
+                        // else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
+                        // else return "CHECK"; // dont discard; might need to change that
+                    } 
+                    else if(sone > stwo) return /* DISCARD card 1 */;
+                    else return /* DISCARD card 0 */;
+                }
+            }
         }
     }
+    else {
+        if(action >= cur.checkfold * 100 && action < cur.bethigh * 100) { // we are betting high
+            cantfold = true; // we just bet high; folding is no longer an option
+            if(table.empty()) discard_flop = discard_turn = false; // we started betting high on preflop, so we are pretending we have a high pair; discarding would give us away
+            else discard_flop = false; // we cannot discard in flop, we can potentially discard in turn
+        }
+        
+        if(action < cur.checkfold * 100) {
+            if(check) {
+                // 0 = CHECK
+                b.actions.push_back(fttoi(0, hs, u, b.current_round));
+                return "CHECK";
+            } else if(!cantfold) return "FOLD";
+        }
+        if(action < cur.bethigh * 100) {
+            cantfold = true; // we just bet high; folding is no longer an option
+            int lower = int(double(i2) * 0.3); // can tweak 0.5
+            int actual = rand() % (100-lower+1) + lower;
+    
+            stringstream ss2;
+            ss2 << max(i1, actual);
+    
+            // 2 = BETHIGH
+            b.actions.push_back(fttoi(2, hs, u, b.current_round));
+            return pre + ss2.str();
+        }
+        else {
+            if(i1 > LOW_THRESHOLD && !cantfold) { // <------- maybe we should change that, as a safety measure in case the opponent goes all-in
+                // 0 = FOLD
+                b.actions.push_back(fttoi(0, hs, u, b.current_round));
+                return "FOLD";
+            } else {
+                int upper = int(double(i1) * 1.15); // can tweak 1.15
+                int actual = rand() % (upper-i1+1) + i1;
+    
+                stringstream ss2;
+                ss2 << min(i2, min(actual, LOW_THRESHOLD));
+    
+                // 1 = BETLOW
+                b.actions.push_back(fttoi(1, hs, u, b.current_round));
+                return pre + ss2.str();
+            }
+        }
+    }  
 }
 
 // HAVE NOT INCORPORATED VOLATILITY
