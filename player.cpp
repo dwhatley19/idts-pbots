@@ -44,6 +44,7 @@ void Player::run(tcp::iostream &stream)
             holeCards.clear();
             holeCards.push_back(holeCard1);
             holeCards.push_back(holeCard2);
+            t.b.current_round = 0;
         } else if(packet_type == "GETACTION") {
             // Respond with CHECK when playing, you'll want to change this.
             sin >> potSize;
@@ -51,6 +52,10 @@ void Player::run(tcp::iostream &stream)
             readVec(sin, lastActions);
             readVec(sin, legalActions);
             sin >> timeBank;
+
+            if(boardCards.size() == 3) t.b.current_round = 1;
+            else if(boardCards.size() == 4) t.b.current_round = 2;
+            else if(boardCards.size() == 5) t.b.current_round = 3;
 
             stream << t.get_action(holeCards, boardCards, legalActions);
         } else if(packet_type == "HANDOVER") {
@@ -61,15 +66,21 @@ void Player::run(tcp::iostream &stream)
             readVec(sin, lastActions);
             sin >> timeBank;
 
+            int payoff = 0;
             for(int i = 0; i < lastActions.size(); ++i) {
                 if(lastActions[i].size() > 3 && lastActions[i].substring(0, 3) == "WIN") {
-                    stringstream ss;
-                    
+                    int sz = lastActions[i].size();
+                    while(sz > 0 && lastActions[i][sz] != ':') --sz;
+                    win_name = lastActions[i].substr(sz + 1);
+
+                    stringstream ss(lastActions.substr(4, sz - 4));
+                    ss >> payoff;
+                    if(ss.peek() == ':') ss.ignore();
                 }
             }
 
-            int payoff = //however much we won
-            t.train(payoff);
+            if(win_name == playerName) t.train(payoff);
+            else t.train(-payoff);
         } else if (packet_type == "REQUESTKEYVALUES") {
             // FINISh indicates no more keyvalue pairs to store.
             stream << "FINISH\n";
