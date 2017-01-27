@@ -209,7 +209,7 @@ string table: current table cards
 0 is most useful
 2 is least useful
 */
-int Bot::usefulness(string hole, string table)
+int Bot::usefulness(vector<string> hole, vector<string> table)
 {
     vector<string> table1 = table, table2 = table, table3 = table;
     table1.push_back(hole[0]);

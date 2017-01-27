@@ -9,6 +9,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -32,7 +33,7 @@ public:
 class Bot {
 public:
 	int hand_strength(vector<string> hand);
-	int usefulness(string hole, string table);
+	int usefulness(vector<string> hole, vector<string> table);
 
 	int current_round;
 	vector<int> actions;
@@ -44,20 +45,21 @@ class Training {
 public:
 	Bot b;
 	string get_action(vector<string> hole, vector<string> table, vector<string> all_cards, vector<string> legal_actions);
-	void train();
+	void train(int payoff);
+	State s[500];
 
 	// hand strength | usefulness | current round
 	// range: 0-4 | 0-2 | 0-3
+	// tweak these functions as we introduce more states
 	int ttoi(int a, int b, int c)
 	{ return 12*a + 4*b + c; }
 
-	void itot(int i, int *a, int *b, int *c)
-	{
-		*a = i/12;
-		i %= 12;
-		*b = i/4;
-		*c = i%4;
-	}
+	// d = action we took
+	// 0 = checkfold, 1 = betlow, 2 = bethigh
+	int fttoi(int d, int a, int b, int c)
+	{ return 60*d + 12*a + 4*b + c; }
+
+	Training() { srand(time(NULL)); }
 };
 
 #endif  // __PLAYER_HPP__
