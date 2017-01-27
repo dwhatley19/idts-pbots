@@ -44,7 +44,7 @@ public:
 class Training {
 public:
 	Bot b;
-	string get_action(vector<string> hole, vector<string> table, vector<string> all_cards, vector<string> legal_actions);
+	string get_action(vector<string> hole, vector<string> table, vector<string> legal_actions);
 	void train(int payoff);
 	State s[500];
 

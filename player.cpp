@@ -3,6 +3,16 @@
 Player::Player() {
 }
 
+
+void readVec(stringstream& sin, vector<string>& v) {
+  int n; sin >> n;
+  v.clear();
+  for (int i = 0; i < n; i++) {
+    string s; sin >> s;
+    v.push_back(s);
+  }
+}
+
 /**
  * Simple example pokerbot, written in C++.
  *
@@ -11,23 +21,42 @@ Player::Player() {
  * convenience) and then always returns the same action.  It is meant as an
  * example of how a pokerbot should communicate with the engine.
  */
-void Player::run(tcp::iostream &stream) {
-  std::string line;
-  while (std::getline(stream, line)) {
-    // For now, just print out whatever date is read in.
-    std::cout << line << "\n";
+void Player::run(tcp::iostream &stream)
+{
+    Training t;
 
-    std::string getaction("GETACTION");
-    std::string request_keyvalue_action("REQUESTKEYVALUES");
-    std::string first_word = line.substr(0, line.find_first_of(' '));
-    if (getaction.compare(first_word) == 0) {
-      // Respond with CHECK when playing, you'll want to change this.
-      stream << "CHECK\n";
-    } else if (request_keyvalue_action.compare(first_word) == 0) {
-      // FINISh indicates no more keyvalue pairs to store.
-      stream << "FINISH\n";
+    std::string line;
+    while (std::getline(stream, line)) {
+        // For now, just print out whatever date is read in.
+        //std::cout << line << "\n";
+
+        stringstream sin(line);
+        string packet_type;
+        sin >> packet_type;
+
+        if (packet_type == "NEWGAME") {
+            sin >> myName >> oppName >> stackSize >> bb >> numHands >> timeBank;
+        } else if(packet_type == "NEWHAND") {
+            sin >> handId >> std::boolalpha >> button >> holeCard1 >> holeCard2 >> myBank >> otherBank >> timeBank;
+        } else if(packet_type == "GETACTION") {
+            // Respond with CHECK when playing, you'll want to change this.
+            sin >> potSize;
+            readVec(sin, boardCards);
+            readVec(sin, lastActions);
+            readVec(sin, legalActions);
+            sin >> timeBank;
+
+            stream << t.get_action(holeCards, boardCards, legalActions);
+        } else if(packet_type == "HANDOVER") {
+            sin >> myStack >> oppStack;
+
+            int payoff = //however much we won
+            t.train(payoff);
+        } else if (packet_type == "REQUESTKEYVALUES") {
+            // FINISh indicates no more keyvalue pairs to store.
+            stream << "FINISH\n";
+        }
     }
-  }
 
-  std::cout << "Gameover, engine disconnected.\n";
+    std::cout << "Gameover, engine disconnected.\n";
 }

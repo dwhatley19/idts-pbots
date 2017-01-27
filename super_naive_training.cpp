@@ -5,8 +5,12 @@
 #define VOLATILE 0.005
 
 // this is terrible code
-string Training::get_action(vector<string> hole, vector<string> table, vector<string> all_cards, vector<string> legal_actions)
+string Training::get_action(vector<string> hole, vector<string> table, vector<string> legal_actions)
 {
+    vector<string> all_cards = table;
+    all_cards.push_back(hole[0]);
+    all_cards.push_back(hole[1]);
+
     int hs = b.hand_strength(all_cards);
     int u = b.usefulness(hole, table);
     State cur = s[ttoi(hs, u, b.current_round)];
