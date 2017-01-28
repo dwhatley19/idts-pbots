@@ -27,8 +27,7 @@ public:
     double bethigh;
     double betlow;
 
-    State(): checkfold(0), bethigh(1), betlow(0) { }
-    State(double a, double b, double c): checkfold(a), betlow(b), bethigh(c) {}
+    State(): checkfold(double(1)/2), bethigh(double(1)/3), betlow(double(2)/3) { }
 };
 
 class Bot {
@@ -62,5 +61,18 @@ public:
 
 	Training() { srand(time(NULL)); }
 };
+
+// returns number between 0 and 12
+int number(string card)
+{
+    int stuff[100];
+    stuff['T'] = 8;
+    stuff['J'] = 9;
+    stuff['Q'] = 10;
+    stuff['K'] = 11;
+    stuff['A'] = 12;
+
+    return ((card[0] >= '2' && card[0] <= '9') ? card[0] - '2' : stuff[card[0]]);
+}
 
 #endif  // __PLAYER_HPP__
