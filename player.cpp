@@ -47,6 +47,14 @@ void Player::run(tcp::iostream &stream)
             string holeCard1, holeCard2;
 
             sin >> handId >> button >> button >> holeCard1 >> holeCard2 >> myBank >> otherBank >> timeBank;
+
+            if(handId % 10 == 0) {
+                // every 10th hand, print probabilities
+                for(int i = 0; i < 60; ++i) {
+                    cout << i << ": " << t.s[i].checkfold << ' ' << t.s[i].betlow << ' ' << t.s[i].bethigh << '\n';
+                }
+            }
+
             holeCards.clear();
             holeCards.push_back(holeCard1);
             holeCards.push_back(holeCard2);

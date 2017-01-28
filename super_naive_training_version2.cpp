@@ -81,12 +81,12 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     int sone = hand_strength4(one);
                     int stwo = hand_strength4(two);
                     if(sone == stwo) {
-                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
-                        else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
+                        if(number(hole[0]) > number(hole[1])) return "DISCARD:" + hole[1];
+                        else if(number(hole[0]) < number(hole[1])) return "DISCARD:" + hole[0];
                         else return "CHECK"; // dont discard; might need to change that
                     } 
-                    else if(sone > stwo) return /* DISCARD card 1 */;
-                    else return /* DISCARD card 0 */;
+                    else if(sone > stwo) return "DISCARD:" + hole[1];
+                    else return "DISCARD:" + hole[0];
                 } else if(u == 2) {
                     vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
                     one.push_back(hole[0]);
@@ -94,17 +94,18 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     int sone = hand_strength4(one);
                     int stwo = hand_strength4(two);
                     if(sone == stwo) {
-                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
-                        else return /* DISCARD card 0 */;
+                        if(number(hole[0]) > number(hole[1])) return "DISCARD:" + hole[1];
+                        else return "DISCARD:" + hole[0];
                         // always discard at usefulness 2
                         // else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
                         // else return "CHECK"; // dont discard; might need to change that
                     } 
-                    else if(sone > stwo) return /* DISCARD card 1 */;
-                    else return /* DISCARD card 0 */;
+                    else if(sone > stwo) return "DISCARD:" + hole[1];
+                    else return "DISCARD:" + hole[0];
                 }
             }
-        } else {
+        } // if(table.size() == 3)
+        else {
             if(!discard_turn) return "CHECK";
             else {
                 if(u == 0) return "CHECK";
@@ -115,12 +116,12 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     int sone = hand_strength5(one, 0);
                     int stwo = hand_strength5(two, 0);
                     if(sone == stwo) {
-                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
-                        else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
+                        if(number(hole[0]) > number(hole[1])) return "DISCARD:" + hole[1];
+                        else if(number(hole[0]) < number(hole[1])) return "DISCARD:" + hole[0];
                         else return "CHECK"; // dont discard; might need to change that
                     } 
-                    else if(sone > stwo) return /* DISCARD card 1 */;
-                    else return /* DISCARD card 0 */;
+                    else if(sone > stwo) return "DISCARD:" + hole[1];
+                    else return "DISCARD:" + hole[0];
                 } else if(u == 2) {
                     vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
                     one.push_back(hole[0]);
@@ -128,18 +129,18 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     int sone = hand_strength5(one, 0);
                     int stwo = hand_strength5(two, 0);
                     if(sone == stwo) {
-                        if(number(hole[0]) > number(hole[1])) return /* DISCARD card 1 */;
-                        else return /* DISCARD card 0 */;
+                        if(number(hole[0]) > number(hole[1])) return "DISCARD:" + hole[1];
+                        else return "DISCARD:" + hole[0];
                         // always discard at usefulness 2
                         // else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
                         // else return "CHECK"; // dont discard; might need to change that
                     } 
-                    else if(sone > stwo) return /* DISCARD card 1 */;
-                    else return /* DISCARD card 0 */;
+                    else if(sone > stwo) return "DISCARD:" + hole[1];
+                    else return "DISCARD:" + hole[0];
                 }
             }
         }
-    }
+    } // if(discard)
     else {
         if(action >= cur.checkfold * 100 && action < cur.bethigh * 100) { // we are betting high
             cantfold = true; // we just bet high; folding is no longer an option
@@ -172,15 +173,30 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                 b.actions.push_back(fttoi(0, hs, u, b.current_round));
                 return "FOLD";
             } else {
-                int upper = int(double(i1) * 1.15); // can tweak 1.15
-                int actual = rand() % (upper-i1+1) + i1;
-    
-                stringstream ss2;
-                ss2 << min(i2, min(actual, LOW_THRESHOLD));
-    
-                // 1 = BETLOW
-                b.actions.push_back(fttoi(1, hs, u, b.current_round));
-                return pre + ss2.str();
+                int call_vs_raise = rand() % 10;
+
+
+                if(pre == "BET:") {
+                    int upper = int(double(i1) * 10); // can tweak 10 -- this just says we're betting between 2 and 20
+                    int actual = rand() % (upper-i1+1) + i1;
+        
+                    stringstream ss2;
+                    ss2 << min(i2, min(actual, LOW_THRESHOLD));
+        
+                    // 1 = BETLOW
+                    b.actions.push_back(fttoi(1, hs, u, b.current_round));
+                    return pre + ss2.str();
+                } else if(pre == "RAISE:" && call_vs_raise >= 8) {
+                    int upper = int(double(i1) * 1.5); // can tweak 1.5
+                    int actual = rand() % (upper-i1+1) + i1;
+        
+                    stringstream ss2;
+                    ss2 << min(i2, min(actual, LOW_THRESHOLD));
+        
+                    // 1 = BETLOW
+                    b.actions.push_back(fttoi(1, hs, u, b.current_round));
+                    return pre + ss2.str();
+                } else return "CALL";
             }
         }
     }  

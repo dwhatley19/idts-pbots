@@ -26,7 +26,6 @@ public:
     double checkfold;
     double bethigh;
     double betlow;
-    double discard;
 
     State(): checkfold(double(1)/2), bethigh(double(1)/3), betlow(double(2)/3) { }
 };
