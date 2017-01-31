@@ -31,7 +31,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
     else preflop_cnt++;
 
     // updating allowed_to_discard
-    if(preflop_cnt == 1) { // beggining of a new game, we can discard (for now) both at the flop and at the turn, and we can also fold
+    // beginning of a new game, we can discard (for now) both at the flop and at the turn, and we can also fold
+    if(preflop_cnt == 1) {
         discard_flop = discard_turn = true; 
         cantfold = false;
     }
@@ -42,7 +43,6 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
 
     int hs = b.hand_strength(all_cards);
     int u = b.usefulness(hole, table);
-    //cout << "(" << hs << ',' << u << ',' << b.current_round << ")\n";
     State cur = s[ttoi(hs, u, b.current_round)];
 
     string bet_string = "X";
@@ -90,8 +90,10 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
             if(!discard_flop) return "CHECK";
             else {
                 if(u == 0) return "CHECK";
-                else if(u == 1 && rand() % 2 == 0) { // discarding with probability 50% (very naive)
-                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                // discarding with probability 50% (very naive)
+                else if(u == 1 && rand() % 2 == 0) {
+                    // one is the table with card 0, two is the table with card 1 
+                    vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
                     int sone = b.hand_strength(one);
@@ -104,7 +106,7 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     else if(sone > stwo) return "DISCARD:" + hole[1];
                     else return "DISCARD:" + hole[0];
                 } else if(u == 2) {
-                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                    vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
                     int sone = b.hand_strength(one);
@@ -125,8 +127,9 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
             if(!discard_turn) return "CHECK";
             else {
                 if(u == 0) return "CHECK";
-                else if(u == 1 && rand() % 2 == 0) { // discarding with probability 50% (very naive)
-                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                // discarding with probability 50% (very naive)
+                else if(u == 1 && rand() % 2 == 0) {
+                    vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
                     int sone = b.hand_strength(one);
@@ -139,7 +142,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     else if(sone > stwo) return "DISCARD:" + hole[1];
                     else return "DISCARD:" + hole[0];
                 } else if(u == 2) {
-                    vector<string> one = table, two = table; // one is the table with card 0, two is the table with card 1 
+                    // one is the table with card 0, two is the table with card 1 
+                    vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
                     int sone = b.hand_strength(one);
@@ -148,8 +152,6 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                         if(cnumber(hole[0]) > cnumber(hole[1])) return "DISCARD:" + hole[1];
                         else return "DISCARD:" + hole[0];
                         // always discard at usefulness 2
-                        // else if(number(hole[0]) < number(hole[1])) return /* DISCARD card 0 */;
-                        // else return "CHECK"; // dont discard; might need to change that
                     } 
                     else if(sone > stwo) return "DISCARD:" + hole[1];
                     else return "DISCARD:" + hole[0];
@@ -158,12 +160,15 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
         }
     } // if(discard)
     else {
-        //cout << "not discarding\n";
-        if(action >= cur.checkfold * 100.0 && action < cur.bethigh * 100.0) { // we are betting high
-            //cout << "bet high\n";
-            cantfold = true; // we just bet high; folding is no longer an option
-            if(table.empty()) discard_flop = discard_turn = false; // we started betting high on preflop, so we are pretending we have a high pair; discarding would give us away
-            else discard_flop = false; // we cannot discard in flop, we can potentially discard in turn
+        // we are betting high
+        if(action >= cur.checkfold * 100.0 && action < cur.bethigh * 100.0) {
+            // we just bet high; folding is no longer an option
+            cantfold = true;
+            // we started betting high on preflop, so we are pretending we have a high pair
+            //  discarding would give us away
+            if(table.empty()) discard_flop = discard_turn = false;
+            // we cannot discard in flop, we can potentially discard in turn
+            else discard_flop = false;
         }
         
         if(action < cur.checkfold * 100 && !cantfold) {
@@ -189,7 +194,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
         }
         else {
             //cout << "bet low\n";
-            if(i1 > LOW_THRESHOLD && !cantfold) { // <------- maybe we should change that, as a safety measure in case the opponent goes all-in
+            // maybe we should change this, as a safety measure in case the opponent goes all-in
+            if(i1 > LOW_THRESHOLD && !cantfold) {
                 // 0 = FOLD
                 b.actions.push_back(fttoi(0, hs, u, b.current_round));
                 return "FOLD";
@@ -198,7 +204,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
 
 
                 if(pre == "BET:") {
-                    int upper = int(double(i1) * 10); // can tweak 10 -- this just says we're betting between 2 and 20
+                    // can tweak 10 -- this just says we're betting between 2 and 20
+                    int upper = int(double(i1) * 10);
                     int actual = rand() % (upper-i1+1) + i1;
         
                     stringstream ss2;
