@@ -28,7 +28,6 @@ public:
     double betlow;
 
     State(): checkfold(0), bethigh(1), betlow(0) { }
-    State(double a, double b, double c): checkfold(a), betlow(b), bethigh(c) {}
 };
 
 class Bot {
