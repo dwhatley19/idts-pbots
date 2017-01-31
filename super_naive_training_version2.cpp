@@ -96,8 +96,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
-                    int sone = b.hand_strength(one);
-                    int stwo = b.hand_strength(two);
+                    int sone = b.hand_strength_discard(one);
+                    int stwo = b.hand_strength_discard(two);
                     if(sone == stwo) {
                         if(cnumber(hole[0]) > cnumber(hole[1])) return "DISCARD:" + hole[1];
                         else if(cnumber(hole[0]) < cnumber(hole[1])) return "DISCARD:" + hole[0];
@@ -109,8 +109,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
-                    int sone = b.hand_strength(one);
-                    int stwo = b.hand_strength(two);
+                    int sone = b.hand_strength_discard(one);
+                    int stwo = b.hand_strength_discard(two);
                     if(sone == stwo) {
                         if(cnumber(hole[0]) > cnumber(hole[1])) return "DISCARD:" + hole[1];
                         else return "DISCARD:" + hole[0];
@@ -132,8 +132,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
-                    int sone = b.hand_strength(one);
-                    int stwo = b.hand_strength(two);
+                    int sone = b.hand_strength_discard(one);
+                    int stwo = b.hand_strength_discard(two);
                     if(sone == stwo) {
                         if(cnumber(hole[0]) > cnumber(hole[1])) return "DISCARD:" + hole[1];
                         else if(cnumber(hole[0]) < cnumber(hole[1])) return "DISCARD:" + hole[0];
@@ -146,8 +146,8 @@ string Training::get_action(vector<string> hole, vector<string> table, vector<st
                     vector<string> one = table, two = table;
                     one.push_back(hole[0]);
                     two.push_back(hole[1]);
-                    int sone = b.hand_strength(one);
-                    int stwo = b.hand_strength(two);
+                    int sone = b.hand_strength_discard(one);
+                    int stwo = b.hand_strength_discard(two);
                     if(sone == stwo) {
                         if(cnumber(hole[0]) > cnumber(hole[1])) return "DISCARD:" + hole[1];
                         else return "DISCARD:" + hole[0];
