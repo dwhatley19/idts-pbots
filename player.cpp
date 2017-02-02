@@ -25,12 +25,12 @@ void Player::run(tcp::iostream &stream)
 {
     Training t;
 
-    string probs = "0.1 0.13204 0.89958 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.13348 0.87534 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1261 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.12292 0.8649 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.13972 0.9 0.78664 0.13864 0.89034 0.9 0.1609 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.70468 0.19324 0.86622 0.8673 0.20536 0.78006 0.1 0.20056 0.66054 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.3901 0.14446 0.8913 0.1993 0.11056 0.79554 0.1 0.1 0.9 0.1 0.1 0.9 0.42064 0.24742 0.85494 0.19474 0.2122 0.42852 0.1 0.21346 0.53604 0.1 0.14428 0.8739 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.1 0.1 0.9 0.12388 0.23926 0.87066 0.112 0.2995 0.39042 0.1 0.1105 0.49224";
-    
+    /*string probs = "-0.0895 1.45536 2.46358 0 0 1 0 0 1 0 0.46984 1.56384 0.3 0.3 0.6 0 0 1 0 0 1 0 0 1 0.3 0.3 0.6 0 0 1 0 0 1 0 0 1 -0.30392 1.46298 4.76622 0.3 0.3 0.6 0.3 0.3 0.6 0.13542 0.36102 1.18944 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 -0.50456 0.88724 7.94284 2.43698 0.57638 0.81976 5.30424 0.24164 1.53498 0.3 0.3 0.6 0.3 0.3 0.6 1.33696 0.76876 1.47548 2.54634 0.66398 0.60366 -0.09134 0.539 0.69676 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 -0.16766 0.26242 15.9708 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 1.47786 0.58278 1.30266 0.59932 0.5278 0.88866 0.3 0.3 0.6 0.3 0.3 0.6 4.15482 1.38068 5.79582 1.01992 1.33654 3.07014 0.22364 0.81698 1.15296 -1.34846 1.91178 36.8389 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 0.3 0.3 0.6 -0.92464 0.76318 8.0494 -10.5008 0.7946 1.13422 0.0024 0.20242 0.63906";
+
     stringstream sep(probs);
     double op1, op2, op3;
     int loc_str = 0;
-    while(sep >> op1 >> op2 >> op3) t.s[loc_str++] = State(op1, op2, op3); 
+    while(sep >> op1 >> op2 >> op3) t.s[loc_str++] = State(op1, op2, op3);*/
 
     std::string line;
     //cout << "Hello\n";
@@ -39,6 +39,7 @@ void Player::run(tcp::iostream &stream)
     string myName, oppName;
     double timeBank;
     int stackSize, bb, numHands;
+    bool giveup = false;
 
     while (std::getline(stream, line)) {
         // For now, just print out whatever date is read in.
@@ -60,6 +61,9 @@ void Player::run(tcp::iostream &stream)
             sin >> handId >> button;
             sin >> holeCard1 >> holeCard2;
             sin >> myBank >> otherBank >> timeBank;
+            if(giveup == false && (myBank > 4 * (numHands - handId) || myBank < -8 * numHands - handId)) giveup = true;
+
+            //cout << "\n============== GAME " << handId << " ==============\n";
 
             if(handId % 10 == 0) {
                 // every 10th hand, print probabilities
@@ -73,6 +77,10 @@ void Player::run(tcp::iostream &stream)
             holeCards.push_back(holeCard2);
             t.b.current_round = 0;
         } else if(packet_type == "GETACTION") {
+            if(giveup) {
+                stream << "CHECK" << endl;
+                continue;
+            }
             // Respond with CHECK when playing, you'll want to change this.
             vector<string> boardCards, legalActions, lastActions;
             int potSize;
@@ -113,8 +121,8 @@ void Player::run(tcp::iostream &stream)
                 }
             }
 
-            if(win_name == myName) t.train(payoff);
-            else t.train(-payoff);
+            //if(win_name == myName) t.train(payoff);
+            //else t.train(-payoff);
         } else if (packet_type == "REQUESTKEYVALUES") {
             // FINISh indicates no more keyvalue pairs to store.
             stream << "FINISH\n";

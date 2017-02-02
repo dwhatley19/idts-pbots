@@ -6,4 +6,4 @@ newpath=os.environ.get('PATH')
 env = Environment(ENV = { 'PATH' : newpath })
 
 boost_libs = ['boost_program_options', 'boost_system']
-env.Program('player', ['main.cpp', 'player.cpp', 'naive.cpp', 'super_naive_training_version2.cpp'], LIBS=boost_libs)
+env.Program('player', ['main.cpp', 'player.cpp', 'naive_debugged.cpp', 'super_naive_training_version2.cpp'], LIBS=[boost_libs, 'pthread'])

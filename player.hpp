@@ -27,13 +27,14 @@ public:
     double bethigh;
     double betlow;
 
-    State(): checkfold(0), bethigh(1), betlow(0) { }
+    State(): checkfold(0.5), bethigh(0.2), betlow(1) { }
     State(double a, double b, double c): checkfold(a), betlow(b), bethigh(c) {}
 };
 
 class Bot {
 public:
 	int hand_strength(vector<string> hand);
+	int hand_strength_discard(vector<string> hand);
 	int usefulness(vector<string> hole, vector<string> table);
 
 	int current_round;

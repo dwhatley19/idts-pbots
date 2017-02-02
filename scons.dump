@@ -1,5 +1,6 @@
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
-scons: `.' is up to date.
+g++ -o super_naive_training_version2.o -c super_naive_training_version2.cpp
+g++ -o player main.o player.o naive_debugged.o super_naive_training_version2.o -lboost_program_options -lboost_system -lpthread
 scons: done building targets.
